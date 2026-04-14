@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ポケカ ジャッジ ターン管理ツール</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1>ポケカ ジャッジ ターン管理</h1>
+            <div id="turn-display">
+                <span id="current-turn-label">先攻 1ターン目</span>
+                <button id="btn-next-turn" class="btn btn-primary">ターン終了 →</button>
+                <button id="btn-undo-turn" class="btn btn-secondary" disabled>← 戻す</button>
+                <button id="btn-reset" class="btn btn-danger">リセット</button>
+            </div>
+        </header>
+
+        <main>
+            <!-- 1回制限アクション -->
+            <section id="once-per-turn">
+                <h2>1ターン1回の行動</h2>
+                <div class="action-grid">
+                    <div class="action-card" data-action="supporter">
+                        <div class="action-icon">🃏</div>
+                        <div class="action-name">サポート</div>
+                        <div class="action-status">未使用</div>
+                        <input type="text" class="action-detail" placeholder="カード名（任意）">
+                    </div>
+                    <div class="action-card" data-action="energy">
+                        <div class="action-icon">⚡</div>
+                        <div class="action-name">エネルギー</div>
+                        <div class="action-status">未使用</div>
+                        <input type="text" class="action-detail" placeholder="種類（任意）">
+                    </div>
+                    <div class="action-card" data-action="retreat">
+                        <div class="action-icon">🔄</div>
+                        <div class="action-name">にげる</div>
+                        <div class="action-status">未使用</div>
+                        <input type="text" class="action-detail" placeholder="メモ（任意）">
+                    </div>
+                    <div class="action-card" data-action="stadium">
+                        <div class="action-icon">🏟️</div>
+                        <div class="action-name">スタジアム</div>
+                        <div class="action-status">未使用</div>
+                        <input type="text" class="action-detail" placeholder="カード名（任意）">
+                    </div>
+                    <div class="action-card wide" data-action="attack">
+                        <div class="action-icon">⚔️</div>
+                        <div class="action-name">ワザ（ターン終了）</div>
+                        <div class="action-status">未使用</div>
+                        <input type="text" class="action-detail" placeholder="ワザ名（任意）">
+                    </div>
+                </div>
+            </section>
+
+            <!-- 先攻1ターン目制限 -->
+            <div id="first-turn-notice" class="notice">
+                ⚠️ 先攻1ターン目：サポート使用不可・ワザ使用不可
+            </div>
+
+            <!-- ポケモン記録 -->
+            <section id="pokemon-tracker">
+                <h2>このターンに場に出したたねポケモン</h2>
+                <div class="pokemon-input-row">
+                    <input type="text" id="basic-pokemon-name" placeholder="ポケモン名">
+                    <button id="btn-add-basic" class="btn btn-primary">追加</button>
+                </div>
+                <div id="basic-pokemon-list" class="pokemon-tag-list"></div>
+                <div id="evolution-warning" class="notice hidden">
+                    ⚠️ このターンに場に出したたねポケモンは次のターンまで進化できません
+                </div>
+
+                <h2>このターンに進化させたポケモン</h2>
+                <div class="pokemon-input-row">
+                    <input type="text" id="evo-from-name" placeholder="進化前（例：ヒトカゲ）">
+                    <span class="evo-arrow">→</span>
+                    <input type="text" id="evo-to-name" placeholder="進化後（例：リザード）">
+                    <button id="btn-add-evolution" class="btn btn-primary">追加</button>
+                </div>
+                <div id="evolution-pokemon-list" class="pokemon-tag-list"></div>
+            </section>
+
+            <!-- メモ -->
+            <section id="notes-section">
+                <h2>メモ</h2>
+                <textarea id="turn-notes" placeholder="このターンのメモ（特性の使用回数など）"></textarea>
+            </section>
+        </main>
+
+        <!-- ログ -->
+        <aside id="log-panel">
+            <h2>ターンログ</h2>
+            <div id="log-entries"></div>
+        </aside>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+node_modules/
+credentials/*.json
+data/image_cache/
+data/rule_guide_cache/
+*.log
+.env
