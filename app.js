@@ -2,13 +2,17 @@
 const state = {
     playerA: '先攻',
     playerB: '後攻',
-    currentPlayer: 'A', // 'A' = 先攻, 'B' = 後攻
+    currentPlayer: 'A',
     turnNumber: 1,
     actions: {},
-    basicPokemon: [],   // たねポケモン（場に出した）
-    evolutions: [],     // 進化 { from: '進化前', to: '進化後' }
+    basicPokemon: [],
+    evolutions: [],
     notes: '',
     log: [],
+    // 現在のターン（未保存）のバックアップ（過去ターン編集時に退避）
+    currentTurnBackup: null,
+    // -1 = 現在のターンを編集中、0以上 = そのログインデックスを編集中
+    editingLogIndex: -1,
 };
 
 function initTurnActions() {
@@ -41,25 +45,107 @@ const evolutionWarning = document.getElementById('evolution-warning');
 const turnNotesArea = document.getElementById('turn-notes');
 const logEntries = document.getElementById('log-entries');
 const actionCards = document.querySelectorAll('.action-card');
+const editingBanner = document.getElementById('editing-banner');
+const editingLabel = document.getElementById('editing-label');
+const btnSaveEdit = document.getElementById('btn-save-edit');
+const btnCancelEdit = document.getElementById('btn-cancel-edit');
+
+// ===== 編集モード =====
+function isEditing() {
+    return state.editingLogIndex >= 0;
+}
+
+function enterEditMode(logIndex) {
+    // 現在のターンの状態を退避
+    state.currentTurnBackup = {
+        actions: JSON.parse(JSON.stringify(state.actions)),
+        basicPokemon: [...state.basicPokemon],
+        evolutions: state.evolutions.map(e => ({...e})),
+        notes: state.notes,
+    };
+
+    state.editingLogIndex = logIndex;
+    const entry = state.log[logIndex];
+
+    // ログの内容を編集エリアに読み込み
+    state.actions = JSON.parse(JSON.stringify(entry.actions));
+    state.basicPokemon = [...entry.basicPokemon];
+    state.evolutions = entry.evolutions.map(e => ({...e}));
+    state.notes = entry.notes;
+    turnNotesArea.value = state.notes;
+
+    updateAll();
+}
+
+function saveEdit() {
+    const idx = state.editingLogIndex;
+    // ログを上書き
+    state.log[idx].actions = JSON.parse(JSON.stringify(state.actions));
+    state.log[idx].basicPokemon = [...state.basicPokemon];
+    state.log[idx].evolutions = state.evolutions.map(e => ({...e}));
+    state.log[idx].notes = state.notes;
+
+    exitEditMode();
+}
+
+function exitEditMode() {
+    // 退避した現在ターンの状態を復元
+    const backup = state.currentTurnBackup;
+    state.actions = backup.actions;
+    state.basicPokemon = backup.basicPokemon;
+    state.evolutions = backup.evolutions;
+    state.notes = backup.notes;
+    turnNotesArea.value = state.notes;
+    state.currentTurnBackup = null;
+    state.editingLogIndex = -1;
+
+    updateAll();
+}
 
 // ===== 表示更新 =====
+function updateAll() {
+    updateTurnDisplay();
+    updateActionCards();
+    updatePokemonList();
+    renderLog();
+}
+
 function updateTurnDisplay() {
-    const playerName = state.currentPlayer === 'A' ? state.playerA : state.playerB;
-    turnLabel.textContent = `${playerName} ${state.turnNumber}ターン目`;
-    turnLabel.className = state.currentPlayer === 'A' ? 'player-a' : 'player-b';
+    if (isEditing()) {
+        const entry = state.log[state.editingLogIndex];
+        const playerName = entry.player === 'A' ? state.playerA : state.playerB;
+        turnLabel.textContent = `${playerName} ${entry.turn}ターン目（編集中）`;
+        turnLabel.className = entry.player === 'A' ? 'player-a' : 'player-b';
 
-    // 先攻1ターン目の制限
-    const isFirstTurn = state.currentPlayer === 'A' && state.turnNumber === 1;
-    firstTurnNotice.classList.toggle('hidden', !isFirstTurn);
+        // 編集バナー表示
+        editingBanner.classList.remove('hidden');
+        editingLabel.textContent = `${playerName} ${entry.turn}ターン目を編集中`;
 
-    // サポートとワザの制限
-    const supporterCard = document.querySelector('[data-action="supporter"]');
-    const attackCard = document.querySelector('[data-action="attack"]');
-    supporterCard.classList.toggle('disabled', isFirstTurn);
-    attackCard.classList.toggle('disabled', isFirstTurn);
+        // 通常ボタン非表示
+        btnNextTurn.classList.add('hidden');
+        btnUndoTurn.classList.add('hidden');
 
-    // 戻すボタン
-    btnUndoTurn.disabled = state.log.length === 0;
+        // 先攻1ターン目制限
+        const isFirstTurn = entry.player === 'A' && entry.turn === 1;
+        firstTurnNotice.classList.toggle('hidden', !isFirstTurn);
+        document.querySelector('[data-action="supporter"]').classList.toggle('disabled', isFirstTurn);
+        document.querySelector('[data-action="attack"]').classList.toggle('disabled', isFirstTurn);
+    } else {
+        const playerName = state.currentPlayer === 'A' ? state.playerA : state.playerB;
+        turnLabel.textContent = `${playerName} ${state.turnNumber}ターン目`;
+        turnLabel.className = state.currentPlayer === 'A' ? 'player-a' : 'player-b';
+
+        editingBanner.classList.add('hidden');
+        btnNextTurn.classList.remove('hidden');
+        btnUndoTurn.classList.remove('hidden');
+
+        const isFirstTurn = state.currentPlayer === 'A' && state.turnNumber === 1;
+        firstTurnNotice.classList.toggle('hidden', !isFirstTurn);
+        document.querySelector('[data-action="supporter"]').classList.toggle('disabled', isFirstTurn);
+        document.querySelector('[data-action="attack"]').classList.toggle('disabled', isFirstTurn);
+
+        btnUndoTurn.disabled = state.log.length === 0;
+    }
 }
 
 function updateActionCards() {
@@ -73,7 +159,6 @@ function updateActionCards() {
 }
 
 function updatePokemonList() {
-    // たねポケモン
     basicPokemonList.innerHTML = '';
     state.basicPokemon.forEach((name, i) => {
         const tag = document.createElement('div');
@@ -84,10 +169,8 @@ function updatePokemonList() {
         `;
         basicPokemonList.appendChild(tag);
     });
-
     evolutionWarning.classList.toggle('hidden', state.basicPokemon.length === 0);
 
-    // 進化ポケモン
     evolutionPokemonList.innerHTML = '';
     state.evolutions.forEach((evo, i) => {
         const tag = document.createElement('div');
@@ -102,14 +185,17 @@ function updatePokemonList() {
 
 function renderLog() {
     logEntries.innerHTML = '';
-    // 新しいログを上に表示
-    [...state.log].reverse().forEach(entry => {
+    [...state.log].reverse().forEach((entry, reverseIdx) => {
+        const realIdx = state.log.length - 1 - reverseIdx;
         const div = document.createElement('div');
         div.className = `log-entry player-${entry.player.toLowerCase()}`;
+        if (state.editingLogIndex === realIdx) {
+            div.classList.add('editing');
+        }
+        div.dataset.logIndex = realIdx;
 
         let bodyHtml = '';
 
-        // アクション
         const actionLabels = {
             supporter: 'サポート',
             energy: 'エネルギー',
@@ -131,25 +217,22 @@ function renderLog() {
             bodyHtml += `<div class="log-action" style="color:#999">行動なし</div>`;
         }
 
-        // たねポケモン
         if (entry.basicPokemon.length > 0) {
             bodyHtml += `<div class="log-pokemon">🟢 たね：${entry.basicPokemon.join('、')}</div>`;
         }
 
-        // 進化
         if (entry.evolutions.length > 0) {
             const evoStrs = entry.evolutions.map(e => `${e.from}→${e.to}`);
             bodyHtml += `<div class="log-pokemon">🔮 進化：${evoStrs.join('、')}</div>`;
         }
 
-        // メモ
         if (entry.notes) {
             bodyHtml += `<div class="log-notes">📝 ${entry.notes}</div>`;
         }
 
         const playerName = entry.player === 'A' ? state.playerA : state.playerB;
         div.innerHTML = `
-            <div class="log-entry-header">${playerName} ${entry.turn}ターン目</div>
+            <div class="log-entry-header">${playerName} ${entry.turn}ターン目 <span class="log-edit-hint">タップで編集</span></div>
             <div class="log-entry-body">${bodyHtml}</div>
         `;
         logEntries.appendChild(div);
@@ -217,6 +300,30 @@ document.getElementById('pokemon-tracker').addEventListener('click', (e) => {
     updatePokemonList();
 });
 
+// ログエントリをクリックして編集
+logEntries.addEventListener('click', (e) => {
+    const entry = e.target.closest('.log-entry');
+    if (!entry) return;
+    const logIndex = parseInt(entry.dataset.logIndex);
+    if (isEditing() && state.editingLogIndex === logIndex) return; // 既に編集中
+    if (isEditing()) {
+        // 別のターンに切り替える前に確認
+        if (!confirm('現在の編集を破棄して別のターンを編集しますか？')) return;
+        exitEditMode();
+    }
+    enterEditMode(logIndex);
+    // メインエリアにスクロール
+    document.querySelector('main').scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// 編集保存
+btnSaveEdit.addEventListener('click', saveEdit);
+
+// 編集キャンセル
+btnCancelEdit.addEventListener('click', () => {
+    exitEditMode();
+});
+
 // メモ同期
 turnNotesArea.addEventListener('input', () => {
     state.notes = turnNotesArea.value;
@@ -229,12 +336,11 @@ btnNextTurn.addEventListener('click', () => {
         turn: state.turnNumber,
         actions: JSON.parse(JSON.stringify(state.actions)),
         basicPokemon: [...state.basicPokemon],
-        evolutions: [...state.evolutions],
+        evolutions: state.evolutions.map(e => ({...e})),
         notes: state.notes,
     };
     state.log.push(logEntry);
 
-    // 次のターンへ
     if (state.currentPlayer === 'A') {
         state.currentPlayer = 'B';
     } else {
@@ -244,19 +350,13 @@ btnNextTurn.addEventListener('click', () => {
 
     initTurnActions();
     turnNotesArea.value = '';
-
-    updateTurnDisplay();
-    updateActionCards();
-    updatePokemonList();
-    renderLog();
+    updateAll();
 });
 
 // ターン戻す
 btnUndoTurn.addEventListener('click', () => {
     if (state.log.length === 0) return;
-
     const lastEntry = state.log.pop();
-
     state.currentPlayer = lastEntry.player;
     state.turnNumber = lastEntry.turn;
     state.actions = lastEntry.actions;
@@ -264,11 +364,7 @@ btnUndoTurn.addEventListener('click', () => {
     state.evolutions = lastEntry.evolutions;
     state.notes = lastEntry.notes;
     turnNotesArea.value = state.notes;
-
-    updateTurnDisplay();
-    updateActionCards();
-    updatePokemonList();
-    renderLog();
+    updateAll();
 });
 
 // リセット
@@ -277,18 +373,13 @@ btnReset.addEventListener('click', () => {
     state.currentPlayer = 'A';
     state.turnNumber = 1;
     state.log = [];
+    state.editingLogIndex = -1;
+    state.currentTurnBackup = null;
     initTurnActions();
     turnNotesArea.value = '';
-
-    updateTurnDisplay();
-    updateActionCards();
-    updatePokemonList();
-    renderLog();
+    updateAll();
 });
 
 // ===== 初期化 =====
 initTurnActions();
-updateTurnDisplay();
-updateActionCards();
-updatePokemonList();
-renderLog();
+updateAll();

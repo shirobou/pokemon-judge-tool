@@ -200,6 +200,56 @@ main h2 {
     background: #fff;
 }
 
+/* 編集モードバナー */
+#editing-banner {
+    grid-column: 1 / -1;
+    background: #fff3cd;
+    border-bottom: 2px solid #f0c040;
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+#editing-banner.hidden {
+    display: none;
+}
+
+#editing-label {
+    font-weight: 700;
+    color: #856404;
+    font-size: 1rem;
+}
+
+.editing-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+/* ログ編集ヒント・ハイライト */
+.log-edit-hint {
+    font-size: 0.75rem;
+    color: #b2bec3;
+    font-weight: 400;
+    margin-left: 6px;
+}
+
+.log-entry {
+    cursor: pointer;
+}
+
+.log-entry:hover {
+    background: #eef;
+}
+
+.log-entry.editing {
+    background: #fff8e1;
+    border-left-color: #f0c040 !important;
+    box-shadow: 0 0 0 2px rgba(240, 192, 64, 0.4);
+}
+
 /* 先攻1ターン目制限 */
 .notice {
     background: #fff8e1;
