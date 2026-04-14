@@ -291,33 +291,38 @@ main h2 {
 }
 
 .slot-btn {
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     border: 1px solid #ddd;
-    border-radius: 6px;
+    border-radius: 8px;
     background: #fff;
-    color: #888;
-    font-size: 1rem;
+    color: #666;
+    font-size: 1.2rem;
     cursor: pointer;
     flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
-.slot-btn:hover {
+.slot-btn:hover,
+.slot-btn:active {
     background: #f0f0f0;
     color: #333;
 }
 
-.slot-swap:hover {
+.slot-swap:hover,
+.slot-swap:active {
     background: #e3f2fd;
     border-color: #42a5f5;
     color: #1565c0;
 }
 
-.slot-clear:hover {
+.slot-clear:hover,
+.slot-clear:active {
     background: #ffeef0;
     border-color: #d63031;
     color: #d63031;
@@ -397,11 +402,6 @@ main h2 {
     padding: 6px 8px;
 }
 
-.bench-slot .slot-btn {
-    width: 30px;
-    height: 30px;
-    font-size: 0.85rem;
-}
 
 /* メモ */
 #turn-notes {
@@ -569,8 +569,25 @@ main h2 {
         font-size: 0.8rem;
     }
 
+    /* フィールドスロット：スマホでは縦並び */
+    .field-slot {
+        flex-wrap: wrap;
+    }
+
+    .field-slot .field-input {
+        width: 100%;
+        flex: 1 1 100%;
+    }
+
+    .slot-btn {
+        width: 44px;
+        height: 44px;
+        font-size: 1.2rem;
+    }
+
+    /* ベンチは1列表示 */
     .bench-slot {
-        flex: 1 1 calc(50% - 8px);
+        flex: 1 1 100%;
         min-width: 0;
     }
 

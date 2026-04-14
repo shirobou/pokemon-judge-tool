@@ -411,9 +411,11 @@ activeInput.addEventListener('input', () => {
 });
 
 // スワップ・クリアのイベント委譲（フィールド全体）
-document.getElementById('field-section').addEventListener('click', (e) => {
+function handleSlotButton(e) {
     const btn = e.target.closest('.slot-btn');
     if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
 
     const slotEl = btn.closest('.field-slot');
     const slotId = slotEl.dataset.slot;
@@ -422,7 +424,6 @@ document.getElementById('field-section').addEventListener('click', (e) => {
         : { type: 'bench', index: parseInt(slotId.replace('bench-', '')) };
 
     if (btn.classList.contains('slot-clear')) {
-        // クリア
         syncFieldFromInputs();
         setSlotValue(slot, '');
         updateFieldInputs();
@@ -432,17 +433,15 @@ document.getElementById('field-section').addEventListener('click', (e) => {
 
     if (btn.classList.contains('slot-swap')) {
         if (swapSource && slotsEqual(swapSource, slot)) {
-            // 同じスロットを再度タップ → キャンセル
             clearSwapState();
         } else if (swapSource) {
-            // 入れ替え実行
             executeSwap(slot);
         } else {
-            // 選択開始
             startSwap(slot);
         }
     }
-});
+}
+document.getElementById('field-section').addEventListener('click', handleSlotButton);
 
 // ベンチ拡張
 benchExpandCheck.addEventListener('change', () => {
