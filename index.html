@@ -70,26 +70,21 @@
                 ⚠️ 先攻1ターン目：サポート使用不可・ワザ使用不可
             </div>
 
-            <!-- ポケモン記録 -->
-            <section id="pokemon-tracker">
-                <h2>このターンに場に出したたねポケモン</h2>
-                <div class="pokemon-input-row">
-                    <input type="text" id="basic-pokemon-name" placeholder="ポケモン名">
-                    <button id="btn-add-basic" class="btn btn-primary">追加</button>
-                </div>
-                <div id="basic-pokemon-list" class="pokemon-tag-list"></div>
-                <div id="evolution-warning" class="notice hidden">
-                    ⚠️ このターンに場に出したたねポケモンは次のターンまで進化できません
+            <!-- バトルフィールド -->
+            <section id="field-section">
+                <h2>バトル場</h2>
+                <div id="active-area">
+                    <input type="text" id="active-pokemon" class="field-input active" placeholder="バトルポケモン">
                 </div>
 
-                <h2>このターンに進化させたポケモン</h2>
-                <div class="pokemon-input-row">
-                    <input type="text" id="evo-from-name" placeholder="進化前（例：ヒトカゲ）">
-                    <span class="evo-arrow">→</span>
-                    <input type="text" id="evo-to-name" placeholder="進化後（例：リザード）">
-                    <button id="btn-add-evolution" class="btn btn-primary">追加</button>
-                </div>
-                <div id="evolution-pokemon-list" class="pokemon-tag-list"></div>
+                <h2>
+                    ベンチ
+                    <label class="bench-toggle">
+                        <input type="checkbox" id="bench-expand">
+                        ゼロの大空洞（8枠）
+                    </label>
+                </h2>
+                <div id="bench-area"></div>
             </section>
 
             <!-- メモ -->

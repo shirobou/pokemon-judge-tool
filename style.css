@@ -265,78 +265,77 @@ main h2 {
     display: none;
 }
 
-/* ポケモン追跡 */
-#pokemon-tracker {
+/* バトルフィールド */
+#field-section {
     margin-bottom: 20px;
 }
 
-.pokemon-input-row {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 12px;
-    flex-wrap: wrap;
-    align-items: center;
+#active-area {
+    margin-bottom: 16px;
 }
 
-.pokemon-input-row input {
-    flex: 1;
-    min-width: 120px;
+.field-input {
     padding: 8px 12px;
     background: #fff;
     border: 1px solid #ddd;
     border-radius: 6px;
     color: #333;
     font-size: 0.95rem;
+    width: 100%;
 }
 
-.pokemon-input-row input:focus {
+.field-input:focus {
     outline: none;
     border-color: #d63031;
 }
 
-.evo-arrow {
-    font-size: 1.3rem;
-    font-weight: bold;
-    color: #636e72;
+.field-input.active {
+    border: 2px solid #d63031;
+    font-weight: 700;
+    font-size: 1.05rem;
+    background: #fff5f5;
 }
 
-.pokemon-tag-list {
+.field-input.changed {
+    background: #fffde7;
+    border-color: #f0c040;
+}
+
+.bench-toggle {
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: #888;
+    margin-left: 10px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.bench-toggle input {
+    margin-right: 4px;
+    cursor: pointer;
+}
+
+#bench-area {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-bottom: 16px;
 }
 
-.pokemon-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    border-radius: 20px;
+.bench-slot {
+    flex: 1 1 calc(33.3% - 8px);
+    min-width: 90px;
+    position: relative;
+}
+
+.bench-slot .bench-label {
+    font-size: 0.7rem;
+    color: #999;
+    margin-bottom: 2px;
+}
+
+.bench-slot .field-input {
     font-size: 0.9rem;
-    font-weight: 600;
-}
-
-.pokemon-tag.basic {
-    background: #e8f8f0;
-    border: 1px solid #27ae60;
-    color: #1e8449;
-}
-
-.pokemon-tag.evolution {
-    background: #f0e6f6;
-    border: 1px solid #8e44ad;
-    color: #7d3c98;
-}
-
-.pokemon-tag .remove-pokemon {
-    cursor: pointer;
-    opacity: 0.6;
-    font-size: 1.1rem;
-}
-
-.pokemon-tag .remove-pokemon:hover {
-    opacity: 1;
+    padding: 6px 8px;
 }
 
 /* メモ */
@@ -421,6 +420,11 @@ main h2 {
     color: #2d3436;
 }
 
+.log-entry-body .log-field {
+    color: #2d3436;
+    font-weight: 600;
+}
+
 .log-entry-body .log-pokemon {
     color: #1e8449;
 }
@@ -500,17 +504,9 @@ main h2 {
         font-size: 0.8rem;
     }
 
-    .pokemon-input-row {
-        flex-direction: column;
-        gap: 6px;
-    }
-
-    .pokemon-input-row input {
-        min-width: 100%;
-    }
-
-    .evo-arrow {
-        text-align: center;
+    .bench-slot {
+        flex: 1 1 calc(50% - 8px);
+        min-width: 0;
     }
 
     #log-panel {
