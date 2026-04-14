@@ -114,6 +114,62 @@ function markChangedFields() {
     }
 }
 
+// ===== スワップ状態 =====
+let swapSource = null; // null or { type: 'active' } or { type: 'bench', index: N }
+
+function clearSwapState() {
+    swapSource = null;
+    document.querySelectorAll('.field-slot').forEach(el => {
+        el.classList.remove('swap-selected', 'swap-target');
+    });
+    document.getElementById('swap-hint').classList.add('hidden');
+}
+
+function startSwap(source) {
+    swapSource = source;
+    document.getElementById('swap-hint').classList.remove('hidden');
+    // ハイライト
+    document.querySelectorAll('.field-slot').forEach(el => {
+        el.classList.remove('swap-selected', 'swap-target');
+    });
+    const sourceEl = getSlotElement(source);
+    if (sourceEl) sourceEl.classList.add('swap-selected');
+    // 他のスロットにtargetクラス
+    document.querySelectorAll('.field-slot').forEach(el => {
+        if (el !== sourceEl) el.classList.add('swap-target');
+    });
+}
+
+function executeSwap(target) {
+    syncFieldFromInputs();
+    const srcVal = getSlotValue(swapSource);
+    const tgtVal = getSlotValue(target);
+    setSlotValue(swapSource, tgtVal);
+    setSlotValue(target, srcVal);
+    clearSwapState();
+    updateFieldInputs();
+    markChangedFields();
+}
+
+function getSlotValue(slot) {
+    if (slot.type === 'active') return state.active;
+    return state.bench[slot.index] || '';
+}
+
+function setSlotValue(slot, val) {
+    if (slot.type === 'active') state.active = val;
+    else state.bench[slot.index] = val;
+}
+
+function getSlotElement(slot) {
+    if (slot.type === 'active') return document.querySelector('[data-slot="active"]');
+    return document.querySelector(`[data-slot="bench-${slot.index}"]`);
+}
+
+function slotsEqual(a, b) {
+    return a && b && a.type === b.type && (a.type === 'active' || a.index === b.index);
+}
+
 // ===== DOM要素 =====
 const turnLabel = document.getElementById('current-turn-label');
 const btnNextTurn = document.getElementById('btn-next-turn');
@@ -248,7 +304,11 @@ function renderBench() {
         slot.className = 'bench-slot';
         slot.innerHTML = `
             <div class="bench-label">ベンチ${i + 1}</div>
-            <input type="text" class="field-input bench-input" data-index="${i}" placeholder="ポケモン名" value="">
+            <div class="field-slot" data-slot="bench-${i}">
+                <input type="text" class="field-input bench-input" data-index="${i}" placeholder="ポケモン名" value="">
+                <button class="slot-btn slot-swap" title="入れ替え">↔</button>
+                <button class="slot-btn slot-clear" title="クリア">×</button>
+            </div>
         `;
         benchArea.appendChild(slot);
     }
@@ -348,6 +408,40 @@ actionCards.forEach(card => {
 activeInput.addEventListener('input', () => {
     state.active = activeInput.value.trim();
     markChangedFields();
+});
+
+// スワップ・クリアのイベント委譲（フィールド全体）
+document.getElementById('field-section').addEventListener('click', (e) => {
+    const btn = e.target.closest('.slot-btn');
+    if (!btn) return;
+
+    const slotEl = btn.closest('.field-slot');
+    const slotId = slotEl.dataset.slot;
+    const slot = slotId === 'active'
+        ? { type: 'active' }
+        : { type: 'bench', index: parseInt(slotId.replace('bench-', '')) };
+
+    if (btn.classList.contains('slot-clear')) {
+        // クリア
+        syncFieldFromInputs();
+        setSlotValue(slot, '');
+        updateFieldInputs();
+        markChangedFields();
+        return;
+    }
+
+    if (btn.classList.contains('slot-swap')) {
+        if (swapSource && slotsEqual(swapSource, slot)) {
+            // 同じスロットを再度タップ → キャンセル
+            clearSwapState();
+        } else if (swapSource) {
+            // 入れ替え実行
+            executeSwap(slot);
+        } else {
+            // 選択開始
+            startSwap(slot);
+        }
+    }
 });
 
 // ベンチ拡張

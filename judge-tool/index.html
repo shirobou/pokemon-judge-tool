@@ -72,9 +72,14 @@
 
             <!-- バトルフィールド -->
             <section id="field-section">
+                <div id="swap-hint" class="notice hidden">🔄 入れ替え先のスロットをタップしてください（キャンセル：もう一度タップ）</div>
                 <h2>バトル場</h2>
                 <div id="active-area">
-                    <input type="text" id="active-pokemon" class="field-input active" placeholder="バトルポケモン">
+                    <div class="field-slot" data-slot="active">
+                        <input type="text" id="active-pokemon" class="field-input active" placeholder="バトルポケモン">
+                        <button class="slot-btn slot-swap" title="入れ替え">↔</button>
+                        <button class="slot-btn slot-clear" title="クリア">×</button>
+                    </div>
                 </div>
 
                 <h2>

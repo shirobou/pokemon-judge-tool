@@ -270,8 +270,67 @@ main h2 {
     margin-bottom: 20px;
 }
 
+#swap-hint {
+    background: #e3f2fd;
+    border-color: #42a5f5;
+    color: #1565c0;
+}
+
 #active-area {
     margin-bottom: 16px;
+}
+
+.field-slot {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.field-slot .field-input {
+    flex: 1;
+}
+
+.slot-btn {
+    width: 36px;
+    height: 36px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: #fff;
+    color: #888;
+    font-size: 1rem;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+}
+
+.slot-btn:hover {
+    background: #f0f0f0;
+    color: #333;
+}
+
+.slot-swap:hover {
+    background: #e3f2fd;
+    border-color: #42a5f5;
+    color: #1565c0;
+}
+
+.slot-clear:hover {
+    background: #ffeef0;
+    border-color: #d63031;
+    color: #d63031;
+}
+
+.field-slot.swap-selected {
+    outline: 3px solid #42a5f5;
+    outline-offset: 2px;
+    border-radius: 8px;
+}
+
+.field-slot.swap-target .field-input {
+    background: #e3f2fd;
 }
 
 .field-input {
@@ -336,6 +395,12 @@ main h2 {
 .bench-slot .field-input {
     font-size: 0.9rem;
     padding: 6px 8px;
+}
+
+.bench-slot .slot-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 0.85rem;
 }
 
 /* メモ */
