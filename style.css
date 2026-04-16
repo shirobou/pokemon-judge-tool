@@ -196,7 +196,7 @@ main h2 {
     border: 1px solid #ddd;
     border-radius: 4px;
     color: #333;
-    font-size: 0.85rem;
+    font-size: 16px;
     text-align: center;
 }
 
@@ -350,7 +350,7 @@ main h2 {
     border: 1px solid #ddd;
     border-radius: 6px;
     color: #333;
-    font-size: 0.95rem;
+    font-size: 16px;
     width: 100%;
 }
 
@@ -404,7 +404,7 @@ main h2 {
 }
 
 .bench-slot .field-input {
-    font-size: 0.9rem;
+    font-size: 16px;
     padding: 6px 8px;
 }
 
@@ -418,7 +418,7 @@ main h2 {
     border: 1px solid #ddd;
     border-radius: 8px;
     color: #333;
-    font-size: 0.9rem;
+    font-size: 16px;
     resize: vertical;
 }
 
@@ -572,7 +572,7 @@ main h2 {
     }
 
     .action-detail {
-        font-size: 0.8rem;
+        font-size: 16px;
     }
 
     /* フィールドスロット：スマホでは縦並び */
